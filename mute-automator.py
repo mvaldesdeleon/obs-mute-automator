@@ -50,6 +50,17 @@ def list_audio_sources():
     return audio_sources
 
 monitored_source = None
+push_to_talk = False
+
+def restore_mute_indicator(name):
+    source = obs.obs_get_source_by_name(name)
+    if not source:
+        dprint(f'Error! Could not get source {mute_indicator}')
+        return
+
+    obs.obs_source_set_enabled(source, True)
+
+    obs.obs_source_release(source)
 
 def update_mute_indicator(muted):
     if not mute_indicator:
@@ -73,6 +84,8 @@ def mute_callback(calldata):
     update_mute_indicator(muted)
 
 def remove_muted_callback(name):
+    global push_to_talk
+
     if not name:
         return
 
@@ -85,6 +98,9 @@ def remove_muted_callback(name):
     obs.signal_handler_disconnect(handler, 'mute', mute_callback)
 
     dprint(f'Removed mute callback for {name}')
+
+    obs.obs_source_enable_push_to_talk(source, False)
+    push_to_talk = False
 
     obs.obs_source_release(source)
 
@@ -119,6 +135,24 @@ def create_muted_callback(name):
 
     obs.obs_source_release(source)
 
+def set_push_to_talk(enabled):
+    global push_to_talk
+
+    if not monitored_source or enabled == push_to_talk:
+        return
+
+    source = obs.obs_get_source_by_name(monitored_source)
+    if not source:
+        dprint(f'Error! Could not get source {monitored_source}')
+        return
+
+    obs.obs_source_enable_push_to_talk(source, enabled)
+    push_to_talk = enabled
+
+    status = 'enabled' if enabled else 'disabled'
+    dprint(f'Push to talk {status}')
+
+    obs.obs_source_release(source)
 
 # ------------------------------------------------------------
 
@@ -171,36 +205,43 @@ def try_fetch_scenes():
         obs.remove_current_callback()
         scenes_loaded = True
         create_muted_callback(main_microphone)
+        check_current_scene()
 
 # ------------------------------------------------------------
 
-def frontend_cb(event):
+def check_current_scene():
+    source = obs.obs_frontend_get_current_scene()
+    name = obs.obs_source_get_name(source)
+    key = get_scene_key(name)
+
+    if is_header(name):
+        dprint(f'Warning! Changed to header scene: {get_header_key(name)}')
+    elif key in scenes:
+        header_key = scenes[key]
+        dprint(f'Scene changed: {header_key}, {key}')
+
+        set_push_to_talk(header_key == 'title-scenes')
+    else:
+        dprint(f'Warning! Changed to a scene with no header: {key}')
+
+    obs.obs_source_release(source)
+
+def frontend_event_callback(event):
     if event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED:
-        source = obs.obs_frontend_get_current_scene()
-        name = obs.obs_source_get_name(source)
-        key = get_scene_key(name)
-
-        if is_header(name):
-            dprint(f'Warning! Changed to header scene: {get_header_key(name)}')
-        elif key in scenes:
-            header_key = scenes[key]
-            dprint(f'Scene changed: {header_key}, {key}')
-        else:
-            dprint(f'Warning! Changed to a scene with no header: {key}')
-
-        obs.obs_source_release(source)
+        check_current_scene()
 
 # ------------------------------------------------------------
 
 def script_load(settings):
-    obs.obs_frontend_add_event_callback(frontend_cb)
+    obs.obs_frontend_add_event_callback(frontend_event_callback)
     obs.timer_add(try_fetch_scenes, 500)
 
 def script_unload():
     obs.timer_remove(try_fetch_scenes)
+    restore_mute_indicator(mute_indicator)
     if monitored_source is not None:
         remove_muted_callback(monitored_source)
-    obs.obs_frontend_remove_event_callback(frontend_cb)
+    obs.obs_frontend_remove_event_callback(frontend_event_callback)
 
 def script_description():
     return '<b>OBS Mute Automator</b>' + \
@@ -213,6 +254,8 @@ def script_description():
 def script_update(settings):
     global header_decorator, header_pattern, main_microphone, mute_indicator, debug
 
+    prev_mute_indicator = mute_indicator
+
     header_decorator = obs.obs_data_get_string(settings, 'header-decorator')
     header_pattern = obs.obs_data_get_string(settings, 'header-pattern')
     main_microphone = obs.obs_data_get_string(settings, 'main-microphone')
@@ -220,6 +263,8 @@ def script_update(settings):
     debug = obs.obs_data_get_bool(settings, 'debug')
 
     if scenes_loaded:
+        if prev_mute_indicator and prev_mute_indicator != mute_indicator:
+            restore_mute_indicator(prev_mute_indicator)
         create_muted_callback(main_microphone)
 
 def script_defaults(settings):
