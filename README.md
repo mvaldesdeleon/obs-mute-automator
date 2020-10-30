@@ -21,10 +21,11 @@ Python scripts require Python to be installed on your computer. Due to [limitati
 ![Configuration screen](https://raw.githubusercontent.com/mvaldesdeleon/obs-mute-automator/mainline/images/config.png)
 
 **Header decorator**: Used to identify your Scenes structure. If you use Separator scenes named `### My Separator ###`, then you would use `###` as the decorator.
-**List of characters used in the decorator**: Used to strip down the decorators from the Separator scenes' names. Be sure to include whitespace characters if needed. For the above example, you would use `# ` as the list of characters.
-**Reload scenes**: Click to refresh when updating adding/removing/renaming scenes, or changing the Separator naming convention.
-**Main microphone**: Audio source to be used as the main microphone.
-**Mute indicator**: Video source to be used as the mute indicator.
+
+**List of characters used in the decorator**: Used to strip down the decorators from the Separator scenes' names. Be sure to include whitespace characters if needed. For the above example, you would use `# ` as the list of characters.  
+**Reload scenes**: Click to refresh when updating adding/removing/renaming scenes, or changing the Separator naming convention.  
+**Main microphone**: Audio source to be used as the main microphone.  
+**Mute indicator**: Video source to be used as the mute indicator.  
 **Print debug messages**: Log debugging information into the Script Log provided by OBS.
 
 For reference, this is how my current Separator scenes look like:
