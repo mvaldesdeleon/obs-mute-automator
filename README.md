@@ -39,11 +39,23 @@ The push-to-talk capability of OBS does not interact with its mute capability. W
 
 # Roadmap
 
-* [ ] Increase configurability.
+* [x] Increase configurability.
   * [x] Expose header key for enabling push-to-talk.
   * [x] Offer to toggle the behaviour of the mute indicator so that the Video source is **enabled** when the main microhone Audio source is **unmuted**.
 * [ ] Allow enabling/disabling each of the main features.
 * [x] Clean-up code.
+
+# References
+
+* [OBS Mute Indicator](https://github.com/dmadison/OBS-Mute-Indicator) by [partsnotincluded.com](https://www.partsnotincluded.com/)
+* [OBS Studio Python Scripting Cheatsheet](https://github.com/upgradeQ/OBS-Studio-Python-Scripting-Cheatsheet-obspython-Examples-of-API) by [upgradeQ](https://github.com/upgradeQ)
+* OBS Studio documentation
+  * [Python/Lua Scripting](https://obsproject.com/docs/scripting.html)
+  * [OBS Core API Reference](https://obsproject.com/docs/reference-core.html)
+  * [OBS Studio Frontend API](https://obsproject.com/docs/reference-frontend-api.html)
+  * [Source API Reference](https://obsproject.com/docs/reference-sources.html)
+  * [Scene API Reference](https://obsproject.com/docs/reference-scenes.html)
+  * [Properties API Reference](https://obsproject.com/docs/reference-properties.html)
 
 # License
 BSD-3-Clause
