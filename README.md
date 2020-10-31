@@ -8,7 +8,7 @@ Enable and disable a Video source depending on the mute status of the main micro
 
 ## Automatic push-to-talk
 
-Enable and disable Push-to-talk on your main microphone Audio source.
+Enable and disable Push-to-talk on your main microphone Audio source depending on the current scene.
 
 # Installation
 
@@ -20,12 +20,12 @@ Python scripts require Python to be installed on your computer. Due to [limitati
 
 ![Configuration screen](https://raw.githubusercontent.com/mvaldesdeleon/obs-mute-automator/mainline/images/config.png)
 
-**Header decorator**: Used to identify your Scenes structure. If you use Separator scenes named `### My Separator ###`, then you would use `###` as the decorator.
-
-**List of characters used in the decorator**: Used to strip down the decorators from the Separator scenes' names. Be sure to include whitespace characters if needed. For the above example, you would use `# ` as the list of characters.  
-**Reload scenes**: Click to refresh when updating adding/removing/renaming scenes, or changing the Separator naming convention.  
 **Main microphone**: Audio source to be used as the main microphone.  
 **Mute indicator**: Video source to be used as the mute indicator.  
+**Header decorator**: Used to identify your Scenes structure. If you use Separator scenes named `### My Separator ###`, then you would use `###` as the decorator.  
+**List of characters used in the decorator**: Used to strip down the decorators from the Separator scenes' names. Be sure to include whitespace characters if needed. For the above example, you would use `# ` as the list of characters.  
+**Header key to enable Push-to-talk**: Used to enable Push-to-talk when Scenes from this Header are enabled. Separator scenes' names are stripped from separators, lowercased, and spaces are replaced by hyphens. For my current configuration, I use `title-scenes`.  
+**Reload scenes**: Click to refresh when updating adding/removing/renaming scenes, or changing the Separator naming convention.  
 **Print debug messages**: Log debugging information into the Script Log provided by OBS.
 
 For reference, this is how my current Separator scenes look like:
@@ -38,11 +38,11 @@ The push-to-talk capability of OBS does not interact with its mute capability. W
 
 # Roadmap
 
-* Increase configurability.
-  * Expose header key for enabling push-to-talk.
-  * Offer to toggle the behaviour of the mute indicator so that the Video source is **enabled** when the main microhone Audio source is **unmuted**.
-* Allow enabling/disabling each of the main features.
-* Clean-up code.
+* [ ] Increase configurability.
+  * [x] Expose header key for enabling push-to-talk.
+  * [ ] Offer to toggle the behaviour of the mute indicator so that the Video source is **enabled** when the main microhone Audio source is **unmuted**.
+* [ ] Allow enabling/disabling each of the main features.
+* [ ] Clean-up code.
 
 # License
 BSD-3-Clause

@@ -31,7 +31,7 @@ def list_video_sources():
 
 # ------------------------------------------------------------
 
-main_microphone = 'AT2035'
+main_microphone = ''
 
 def list_audio_sources():
     audio_sources = []
@@ -158,6 +158,7 @@ def set_push_to_talk(enabled):
 
 header_decorator = '--------'
 header_pattern = '- '
+push_to_talk_key = 'title-scenes'
 
 scenes = {}
 scenes_loaded = False
@@ -220,7 +221,7 @@ def check_current_scene():
         header_key = scenes[key]
         dprint(f'Scene changed: {header_key}, {key}')
 
-        set_push_to_talk(header_key == 'title-scenes')
+        set_push_to_talk(header_key == push_to_talk_key)
     else:
         dprint(f'Warning! Changed to a scene with no header: {key}')
 
@@ -249,17 +250,18 @@ def script_description():
         'Automatically enabling push-to-talk when switching into title scenes, ' + \
         'as well as automatically toggling a target source\'s visibility when \'mute\' is enabled.' + \
         '<br/><br/>' + \
-        '<a href="http://github.com/mvaldesdeleon/obs-mute-automator">github.com/mvaldesdeleon/obs-mute-automator</a>'
+        '<a href="https://github.com/mvaldesdeleon/obs-mute-automator">https://github.com/mvaldesdeleon/obs-mute-automator</a>'
 
 def script_update(settings):
-    global header_decorator, header_pattern, main_microphone, mute_indicator, debug
+    global main_microphone, mute_indicator, header_decorator, header_pattern, push_to_talk_key, debug
 
     prev_mute_indicator = mute_indicator
 
-    header_decorator = obs.obs_data_get_string(settings, 'header-decorator')
-    header_pattern = obs.obs_data_get_string(settings, 'header-pattern')
     main_microphone = obs.obs_data_get_string(settings, 'main-microphone')
     mute_indicator = obs.obs_data_get_string(settings, 'mute-indicator')
+    header_decorator = obs.obs_data_get_string(settings, 'header-decorator')
+    header_pattern = obs.obs_data_get_string(settings, 'header-pattern')
+    push_to_talk_key = obs.obs_data_get_string(settings, 'push-to-talk-key')
     debug = obs.obs_data_get_bool(settings, 'debug')
 
     if scenes_loaded:
@@ -268,18 +270,15 @@ def script_update(settings):
         create_muted_callback(main_microphone)
 
 def script_defaults(settings):
-    obs.obs_data_set_default_string(settings, 'header-decorator', header_decorator)
-    obs.obs_data_set_default_string(settings, 'header-pattern', header_pattern)
     obs.obs_data_set_default_string(settings, 'main-microphone', main_microphone)
     obs.obs_data_set_default_string(settings, 'mute-indicator', mute_indicator)
+    obs.obs_data_set_default_string(settings, 'header-decorator', header_decorator)
+    obs.obs_data_set_default_string(settings, 'header-pattern', header_pattern)
+    obs.obs_data_set_default_string(settings, 'push-to-talk-key', push_to_talk_key)
     obs.obs_data_set_default_bool(settings, 'debug', debug)
 
 def script_properties():
     props = obs.obs_properties_create()
-
-    obs.obs_properties_add_text(props, 'header-decorator', 'Header decorator', obs.OBS_TEXT_DEFAULT)
-    obs.obs_properties_add_text(props, 'header-pattern', 'List of characters used in the decorator', obs.OBS_TEXT_DEFAULT)
-    obs.obs_properties_add_button(props, 'reload-scenes', 'Reload scenes', lambda *args: fetch_scenes())
 
     audio_source_list = obs.obs_properties_add_list(props, 'main-microphone', 'Main microphone', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
     for name in list_audio_sources():
@@ -289,6 +288,11 @@ def script_properties():
     for name in list_video_sources():
         obs.obs_property_list_add_string(video_source_list, name, name)
 
-    obs.obs_properties_add_bool(props, 'debug', 'Print Debug Messages')
+    obs.obs_properties_add_text(props, 'header-decorator', 'Header decorator', obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_text(props, 'header-pattern', 'List of characters used in the decorator', obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_text(props, 'push-to-talk-key', 'Header key to enable Push-to-talk', obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_button(props, 'reload-scenes', 'Reload scenes', lambda *args: fetch_scenes())
+
+    obs.obs_properties_add_bool(props, 'debug', 'Print debug messages')
     
     return props
