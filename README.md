@@ -42,7 +42,7 @@ The push-to-talk capability of OBS does not interact with its mute capability. W
   * [x] Expose header key for enabling push-to-talk.
   * [ ] Offer to toggle the behaviour of the mute indicator so that the Video source is **enabled** when the main microhone Audio source is **unmuted**.
 * [ ] Allow enabling/disabling each of the main features.
-* [ ] Clean-up code.
+* [x] Clean-up code.
 
 # License
 BSD-3-Clause
