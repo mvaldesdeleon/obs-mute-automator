@@ -4,6 +4,7 @@ import pprint as pp
 # User properties
 main_microphone = ''
 mute_indicator = ''
+mute_indicator_negate = False
 header_decorator = '--------'
 header_pattern = '- '
 push_to_talk_key = 'title-scenes'
@@ -74,6 +75,8 @@ def update_mute_indicator(mute_indicator, main_microphone):
 
     dprint(f'Main microphone {status}')
 
+    if mute_indicator_negate:
+        muted = not muted
     set_mute_indicator(mute_indicator, muted)
 
     obs.obs_source_release(source)
@@ -85,6 +88,8 @@ def mute_callback(calldata):
 
     dprint(f'Main microphone {status}')
 
+    if mute_indicator_negate:
+        muted = not muted
     set_mute_indicator(active_mute_indicator, muted)
 
 def remove_mute_callback(main_microphone):
@@ -262,10 +267,11 @@ def script_description():
         '<a href="https://github.com/mvaldesdeleon/obs-mute-automator">https://github.com/mvaldesdeleon/obs-mute-automator</a>'
 
 def script_update(settings):
-    global main_microphone, mute_indicator, header_decorator, header_pattern, push_to_talk_key, debug, push_to_talk, active_main_microphone, active_mute_indicator
+    global main_microphone, mute_indicator, mute_indicator_negate, header_decorator, header_pattern, push_to_talk_key, debug, push_to_talk, active_main_microphone, active_mute_indicator
 
     main_microphone = obs.obs_data_get_string(settings, 'main-microphone')
     mute_indicator = obs.obs_data_get_string(settings, 'mute-indicator')
+    mute_indicator_negate = obs.obs_data_get_bool(settings, 'mute-indicator-negate')
     header_decorator = obs.obs_data_get_string(settings, 'header-decorator')
     header_pattern = obs.obs_data_get_string(settings, 'header-pattern')
     push_to_talk_key = obs.obs_data_get_string(settings, 'push-to-talk-key')
@@ -278,17 +284,19 @@ def script_update(settings):
             push_to_talk = False
             active_main_microphone = main_microphone
             create_mute_callback(main_microphone)
-            update_mute_indicator(mute_indicator, main_microphone)
+            # update_mute_indicator(mute_indicator, main_microphone)
         if mute_indicator and mute_indicator != active_mute_indicator:
             restore_mute_indicator(active_mute_indicator)
             active_mute_indicator = mute_indicator
-            update_mute_indicator(mute_indicator, main_microphone)
+            # update_mute_indicator(mute_indicator, main_microphone)
+        update_mute_indicator(mute_indicator, main_microphone)
         fetch_scenes()
         check_current_scene()
 
 def script_defaults(settings):
     obs.obs_data_set_default_string(settings, 'main-microphone', main_microphone)
     obs.obs_data_set_default_string(settings, 'mute-indicator', mute_indicator)
+    obs.obs_data_set_default_bool(settings, 'mute-indicator-negate', mute_indicator_negate)
     obs.obs_data_set_default_string(settings, 'header-decorator', header_decorator)
     obs.obs_data_set_default_string(settings, 'header-pattern', header_pattern)
     obs.obs_data_set_default_string(settings, 'push-to-talk-key', push_to_talk_key)
@@ -305,6 +313,7 @@ def script_properties():
     for name in list_video_sources():
         obs.obs_property_list_add_string(video_source_list, name, name)
 
+    obs.obs_properties_add_bool(props, 'mute-indicator-negate', 'Reverse behavior/On-Air indicator')
     obs.obs_properties_add_text(props, 'header-decorator', 'Header decorator', obs.OBS_TEXT_DEFAULT)
     obs.obs_properties_add_text(props, 'header-pattern', 'List of characters used in the decorator', obs.OBS_TEXT_DEFAULT)
     obs.obs_properties_add_text(props, 'push-to-talk-key', 'Header key to enable Push-to-talk', obs.OBS_TEXT_DEFAULT)
